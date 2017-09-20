@@ -1,5 +1,7 @@
 package com.toggle;
 
+import com.toggle.exceptions.ToggleNotFoundException;
+import com.toggle.exceptions.ToggleStatusAlreadySettedException;
 import com.toggle.utils.ToggleConstants;
 import org.junit.Assert;
 import org.junit.Test;
@@ -106,16 +108,22 @@ public class ToggleSecurityTests {
     public void testAddUpdateRemoveSuccess() throws Exception {
 
         //add toggle configuration
-        String serviceAddToggleConfig = "/addToggleStatus?toggleId=feature1&toggleVersion=V1.0&toggleStatus=true";
+        String serviceAddToggleConfig = "/addToggleStatus?toggleId=feature1&toggleVersion=V1.0&toggleStatus=false";
         MvcResult result = this.mockMvc.perform(get(serviceAddToggleConfig))
                 .andDo(print()).andExpect(status().isOk())
                 .andReturn();
         String content = result.getResponse().getContentAsString();
         Assert.assertEquals(content, ToggleConstants.TRUE);
 
+        //update toggle configuration to the same value
+        String serviceUpdateToggleConfig = "/updateToggleStatus?toggleId=feature1&toggleVersion=V1.0&toggleStatus=false";
+        this.mockMvc.perform(get(serviceUpdateToggleConfig))
+                .andDo(print()).andExpect(status().isInternalServerError())
+                .andExpect(status().reason(ToggleStatusAlreadySettedException.MESSAGE));
+
         //update toggle configuration
-        String serviceUpdateToggleConfig = "/updateToggleStatus?toggleId=feature1&toggleVersion=V1.0&toggleStatus=true";
-        MvcResult result2 = this.mockMvc.perform(get(serviceUpdateToggleConfig))
+        String serviceUpdateToggleConfig2 = "/updateToggleStatus?toggleId=feature1&toggleVersion=V1.0&toggleStatus=true";
+        MvcResult result2 = this.mockMvc.perform(get(serviceUpdateToggleConfig2))
                 .andDo(print()).andExpect(status().isOk())
                 .andReturn();
         String content2 = result2.getResponse().getContentAsString();

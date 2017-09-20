@@ -52,11 +52,17 @@ public class ToggleBeanBuilder {
     private ArrayList<String> appsAuthorized;
 
 
-    public ToggleBeanBuilder setKey(String toggleId, String toggleVersion) {
-        this.toggleId = toggleId;
-        this.toggleVersion = toggleVersion;
-        this.toggleKey = toggleId+"_"+toggleVersion;
+    public ToggleBeanBuilder setKey(String key) {
+        this.toggleKey = key;
         return this;
+    }
+
+    public void setToggleId(String toggleId) {
+        this.toggleId = toggleId;
+    }
+
+    public void setToggleVersion(String toggleVersion) {
+        this.toggleVersion = toggleVersion;
     }
 
     public ToggleBeanBuilder setToggleStatus(boolean status) {
@@ -108,7 +114,7 @@ public class ToggleBeanBuilder {
 
     /*****************************************************************************
      *
-     * GETTERS AND SETTERS
+     * GETTERS
      *
      *****************************************************************************/
 

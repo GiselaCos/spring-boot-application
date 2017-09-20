@@ -48,6 +48,7 @@ public class ToggleBean {
      */
     private List<String> appsAuthorized;
 
+
     public ToggleBean(ToggleBeanBuilder builder) {
         this.toggleKey=builder.getToggleKey();
         this.toggleId=builder.getToggleId();

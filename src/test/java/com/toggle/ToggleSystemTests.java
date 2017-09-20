@@ -1,6 +1,9 @@
-/**
- * This class is responsible to test the scenarios described on the requirements list
- */
+/***************************************************************************************************************
+ *
+ * REQ3 - Implement a Rest API to manage the toggles
+ *        and to deliver the toggles values to each client application/service request.
+ *
+ ***************************************************************************************************************/
 package com.toggle;
 
 
@@ -10,10 +13,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.toggle.exceptions.ToggleForbiddenException;
 import com.toggle.utils.ToggleConstants;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,11 +38,12 @@ public class ToggleSystemTests {
     @Test
     public void testSystemRequirements() throws Exception {
 
-        /***************************************************
-         * ADMIN
-         ***************************************************/
+        /**********************************************************************************************************
+         * REQ1 - A toggle may be used by one or more application/service, and also they can be overridden
+         **********************************************************************************************************/
 
         //add isButtonBlue toggle
+        //Toggle named isButtonBlue with value a true must be configured so all applications/services may use the same value.
         String serviceAddIsButtonBlueConfig = "/addToggleStatus?toggleId=isButtonBlue&toggleVersion=V1.0&toggleStatus=true";
         MvcResult result = this.mockMvc.perform(get(serviceAddIsButtonBlueConfig).header(HttpHeaders.AUTHORIZATION,
                 "Basic " + Base64Utils.encodeToString("user:pass".getBytes())))
@@ -60,6 +62,7 @@ public class ToggleSystemTests {
         Assert.assertEquals(ToggleConstants.TRUE, contentRead);
 
         //add isButtonGreen toggle
+        //Toggle called isButtonGreen with value a true must be configured so that service Abc only use it.
         String serviceAddIsButtonGreenConfig = "/addToggleStatus?toggleId=isButtonGreen&toggleVersion=V1.0&toggleStatus=true&toggleAccess=Abc";
         MvcResult result2 = this.mockMvc.perform(get(serviceAddIsButtonGreenConfig).header(HttpHeaders.AUTHORIZATION,
                 "Basic " + Base64Utils.encodeToString("user:pass".getBytes())))
@@ -78,6 +81,8 @@ public class ToggleSystemTests {
         Assert.assertEquals(ToggleConstants.TRUE, contentRead2);
 
         //add isButtonRed toggle
+        //Toggle named isButtonRed with value a true must be configured so all application/services may use the same value,
+        //with the exception for the service Abc that must have this toggle configured with the value set false.
         String serviceAddIsButtonRedConfig = "/addToggleStatus?toggleId=isButtonRed&toggleVersion=V1.0&toggleStatus=true&statusAlwaysFalse=Abc&toggleAccess=Abc,Def";
         MvcResult result3 = this.mockMvc.perform(get(serviceAddIsButtonRedConfig).header(HttpHeaders.AUTHORIZATION,
                 "Basic " + Base64Utils.encodeToString("user:pass".getBytes())))
@@ -113,9 +118,12 @@ public class ToggleSystemTests {
         String contentRead4 = resultRead4.getResponse().getContentAsString();
         Assert.assertEquals(ToggleConstants.FALSE, contentRead4);
 
-        /***************************************************
-         * APP - Abc
-         ***************************************************/
+        /**********************************************************************************************************
+         * REQ2 - When the application/service request their toggles, they must only provide their id and version.
+         *
+         * --> status is needed only in update, apps only can update their own state, apps cannot update toggle status
+         * --> toggle status has priority over app status
+         **********************************************************************************************************/
 
         //checks toggle isButtonBlue status for app:Abc
         String serviceReadAbc = "/readToggleAppStatus?toggleId=isButtonBlue&toggleVersion=V1.0";
@@ -270,7 +278,14 @@ public class ToggleSystemTests {
 
     @Test
     @WithMockUser(username = "Abc", password = "App1", roles = "APP")
-    public void test3_AbcForbiddenException() throws Exception {
+    public void testAbcForbiddenException() throws Exception {
+
+        /**********************************************************************************************************
+         * REQ4 - When setting a new toggle, only users with admin permission may create a toggle.
+         *
+         * --> toggle status update and deleting a toggle configuration is also available only for admins
+         **********************************************************************************************************/
+
         //should give an error only admins can perform those actions
         String serviceRemoveToggleConfig = "/removeToggleConfig?toggleId=isButtonBlue&toggleVersion=V1.0";
         this.mockMvc.perform(get(serviceRemoveToggleConfig))
@@ -289,7 +304,14 @@ public class ToggleSystemTests {
 
     @Test
     @WithMockUser(username = "Def", password = "App2", roles = "APP")
-    public void test5_DefForbiddenException() throws Exception {
+    public void testDefForbiddenException() throws Exception {
+
+        /**********************************************************************************************************
+         * REQ4 - When setting a new toggle, only users with admin permission may create a toggle.
+         *
+         * --> toggle status update and deleting a toggle configuration is also available only for admins
+         **********************************************************************************************************/
+
         //should give an error only admins can perform those actions
         String serviceRemoveToggleConfig = "/removeToggleConfig?toggleId=isButtonBlue&toggleVersion=V1.0";
         this.mockMvc.perform(get(serviceRemoveToggleConfig))

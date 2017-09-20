@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 
 @Component
 @PropertySource("classpath:application.properties")
@@ -19,7 +18,7 @@ import java.util.ArrayList;
 @Scope("singleton")
 public class TogglePropertiesConfiguration {
 
-    private static final Logger logger = LoggerFactory.getLogger(TogglePropertiesManagement.class);
+    private static final Logger logger = LoggerFactory.getLogger(TogglePropertiesManager.class);
 
     private static PropertiesConfiguration configuration = null;
 
